@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>BadApple</title>
+	<style type="text/css">
+		html,body{
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+	<script type="text/javascript">
+		function renderVideoFrame(videoDom,gap = 12) {
+			var asciiList = ['猿','帅','老','大', '　'];
+
+			var videoSize = {width:parseFloat(videoDom.videoWidth/2),height:parseFloat(videoDom.videoHeight/2)};
+			var canvas = document.querySelector("#canvas");
+			if(!canvas){
+				canvas = document.createElement("canvas");
+				canvas.id = "canvas";
+				canvas.style.width = videoDom.style.width;
+				canvas.style.height = videoDom.style.height;
+				canvas.style.position = "absolute";
+				canvas.style.zIndex = 1;
+				canvas.style.left = canvas.style.top = "0";
+				canvas.width = videoSize.width;
+				canvas.height = videoSize.height;
+
+				document.body.appendChild(canvas);
+			}
+
+			const ctx = canvas.getContext("2d");
+
+			ctx.drawImage(videoDom, 0, 0, videoSize.width, videoSize.height);
+
+			var imgData = ctx.getImageData(0, 0, videoSize.width, videoSize.height).data;
+			ctx.clearRect(0, 0, videoSize.width, videoSize.height);
+			ctx.font=gap + "px Verdana";
+
+
+			for (var h = 0; h < videoSize.height; h+=gap) {
+				for(var w = 0; w < videoSize.width; w+=gap){
+					var position = (videoSize.width * h + w) * 4;
+					var r = imgData[position], g = imgData[position + 1], b = imgData[position + 2];
+
+					var gray = (r*30 + g*59 + b*11 + 50) / 100;
+
+					var i = Math.min(asciiList.length-1,parseInt(gray / (255 / asciiList.length)));
+
+					ctx.fillText(asciiList[i], w, h);
+				}
+			}
+		}
+		function init(){
+			var videoDom = document.createElement("video");
+			videoDom.src = "./video/badapple.mp4";
+			videoDom.style.width = "720px";
+			videoDom.style.height = "540px";
+			// videoDom.style.display = "none";
+			// document.body.appendChild(videoDom);
+
+			var btnPlayAndPause = document.createElement("div");
+	        btnPlayAndPause.style.color = "#fff";
+	        btnPlayAndPause.style.textAlign = "center";
+	        btnPlayAndPause.style.position = "absolute";
+	        btnPlayAndPause.style.top = btnPlayAndPause.style.left = "0px";
+	        btnPlayAndPause.style.width = videoDom.style.width;
+	        btnPlayAndPause.style.height = videoDom.style.height;
+	        btnPlayAndPause.style.lineHeight = videoDom.style.height;
+	        btnPlayAndPause.style.cursor = "pointer";
+	        btnPlayAndPause.style.fontSize = "30px";
+	        btnPlayAndPause.style.zIndex = 2;
+			btnPlayAndPause.innerText = "play";
+			document.body.appendChild(btnPlayAndPause);
+
+			btnPlayAndPause.addEventListener("click",function(){
+				if(btnPlayAndPause.innerText === "play"){
+					videoDom.play();
+				}else{
+					videoDom.pause();
+				}
+			})
+
+			videoDom.addEventListener('canplay',function(){
+            	renderVideoFrame(videoDom);
+	        });
+
+			videoDom.addEventListener('play',function(){
+            	console.log("开始播放");
+            	btnPlayAndPause.innerText = "";
+
+            	startRender();
+	        });
+
+	        //监听播放结束
+	        videoDom.addEventListener('pause',function(){
+	            console.log("播放暂停");
+	            btnPlayAndPause.innerText = "play";
+
+	            stopRender();
+	        }); 
+
+	        //监听播放结束
+	        videoDom.addEventListener('ended',function(){
+	            console.log("播放结束");
+	            btnPlayAndPause.innerText = "play";
+
+	            stopRender();
+	        });
+
+	        var timerId;
+	        function startRender() {
+	        	timerId = requestAnimationFrame(updateRender);
+	        }
+	        function updateRender(){
+	        	renderVideoFrame(videoDom);
+	        	timerId = requestAnimationFrame(updateRender);
+	        }
+	        function stopRender(){
+	        	cancelAnimationFrame(timerId);
+	        }
+		}
+		window.onload=function(){
+			init();
+		}
+	</script>
+</head>
+<body>
+</body>
+</html>
