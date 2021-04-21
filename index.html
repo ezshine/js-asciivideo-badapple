@@ -11,7 +11,7 @@
 	</style>
 	<script type="text/javascript">
 		function renderVideoFrame(videoDom,gap = 12) {
-			var asciiList = ['猿','帅','老','大', '　'];
+			var asciiList = ['幂','杨','爱','我', '　'];
 
 			var videoSize = {width:parseFloat(videoDom.videoWidth/2),height:parseFloat(videoDom.videoHeight/2)};
 			var canvas = document.querySelector("#canvas");
@@ -47,12 +47,16 @@
 
 					var i = Math.min(asciiList.length-1,parseInt(gray / (255 / asciiList.length)));
 
+					// 可以支持彩色
+					//ctx.fillStyle = "rgb("+r+","+g+","+b+")";
+
 					ctx.fillText(asciiList[i], w, h);
 				}
 			}
 		}
 		function init(){
 			var videoDom = document.createElement("video");
+			// var videoDom = document.querySelector("video");
 			videoDom.src = "./video/badapple.mp4";
 			videoDom.style.width = "720px";
 			videoDom.style.height = "540px";
